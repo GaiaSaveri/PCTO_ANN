@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import datasets, layers, models
 import matplotlib.pyplot as plt
+import pickle
 
 # Caricamento e normalizzazione del dataset CIFAR-10
 (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
@@ -40,6 +41,21 @@ history = model.fit(train_images_subset, train_labels_subset, epochs=10, validat
 test_loss, test_acc = model.evaluate(test_images_subset, test_labels_subset, verbose=2)
 print('\nTest accuracy with subset of data:', test_acc)
 
+# Utilizzare il modello per fare previsioni sul subset di test
+predictions = model.predict(test_images_subset)
+predicted_labels = np.argmax(predictions, axis=1)
+
+# Salvare le metriche, le etichette vere e predette
+results = {
+    'history': history.history,
+    'test_loss': test_loss,
+    'test_accuracy': test_acc,
+    'true_labels': test_labels_subset.flatten(),
+    'predicted_labels': predicted_labels
+}
+
+with open('cifar_normal_results.pkl', 'wb') as file:
+    pickle.dump(results, file)
 
 # Visualizzazione delle metriche di addestramento
 plt.figure(figsize=(12, 5))

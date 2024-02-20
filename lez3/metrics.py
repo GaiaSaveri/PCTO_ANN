@@ -7,7 +7,7 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 
 
 # Funzione per caricare i dati salvati
-def load_data(filename='cifar_results.pkl'):
+def load_data(filename):
     with open(filename, 'rb') as file:
         data = pickle.load(file)
     return data
@@ -52,7 +52,7 @@ def print_class_accuracy(true_labels, predicted_labels, classes):
 
 
 # Caricare i dati
-data = load_data()
+data = load_data('cifar_optimized_results.pkl')
 
 # Plot dei boxplot per loss e accuracy
 plot_boxplots(pd.DataFrame(data['history']))
