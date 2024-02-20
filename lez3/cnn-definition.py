@@ -15,11 +15,10 @@ test_images = test_images.reshape((10000, 28, 28, 1))
 
 # Definire l'architettura della CNN
 model = models.Sequential([
-    # Aggiungere il primo strato convoluzionale
-    # 32: numero di filtri (kernels) che la rete apprenderà
-    # (3, 3): dimensione di ciascun filtro (3x3)
-    # activation='relu': funzione di attivazione ReLU (Rectified Linear Unit)
-    # input_shape=(28, 28, 1): dimensione delle immagini in input (28x28 pixel, 1 canale di colore poiché le immagini sono in scala di grigi)
+    # Aggiungere il primo strato convoluzionale 32: numero di filtri (kernels) che la rete apprenderà (3,
+    # 3): dimensione di ciascun filtro (3x3) activation='relu': funzione di attivazione ReLU (Rectified Linear Unit)
+    # input_shape=(28, 28, 1): dimensione delle immagini in input (28x28 pixel, 1 canale di colore poiché le immagini
+    # sono in scala di grigi)
     layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
 
     # Aggiungere uno strato di pooling

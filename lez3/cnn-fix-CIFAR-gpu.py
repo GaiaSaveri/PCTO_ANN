@@ -5,7 +5,19 @@ from tensorflow.keras import datasets, layers, models
 import matplotlib.pyplot as plt
 import pickle
 
-# PROVARE A MODIFICARE QUESTO SCRIPT IN MODO CHE MIGLIORINO LE PERFORMANCES
+# Verifica della disponibilità della GPU
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        # Configurazione di TensorFlow per utilizzare la GPU se disponibile
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        print(f"GPU disponibili: {[gpu.name for gpu in gpus]}")
+    except RuntimeError as e:
+        # Gestione degli errori in caso di problemi di configurazione
+        print(e)
+else:
+    print("GPU non disponibile, verrà utilizzata la CPU.")
 
 # Caricare e preparare il dataset CIFAR-10
 (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
@@ -24,17 +36,35 @@ test_labels_subset = test_labels[:num_test_subset]
 def create_optimized_model():
     model = models.Sequential([
         # Primo blocco convoluzionale
-        layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)),
-        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(32, (3, 3), padding='same', activation='relu', input_shape=(32, 32, 3)),
+        layers.BatchNormalization(),
+        layers.Conv2D(32, (3, 3), padding='same', activation='relu'),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D(),
+        layers.Dropout(0.2),
 
         # Secondo blocco convoluzionale
-        layers.Conv2D(64, (3, 3), activation='relu'),
-        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), padding='same', activation='relu'),
+        layers.BatchNormalization(),
+        layers.Conv2D(64, (3, 3), padding='same', activation='relu'),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D(),
+        layers.Dropout(0.3),
 
-        # Appiattimento e strati densamente connessi
+        # Terzo blocco convoluzionale
+        layers.Conv2D(128, (3, 3), padding='same', activation='relu'),
+        layers.BatchNormalization(),
+        layers.Conv2D(128, (3, 3), padding='same', activation='relu'),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D(),
+        layers.Dropout(0.4),
+
+        # Strato di appiattimento e strato denso finale
         layers.Flatten(),
-        layers.Dense(64, activation='relu'),
-        layers.Dense(10, activation='softmax')  # Uso softmax per la classificazione multiclasse
+        layers.Dense(128, activation='relu'),
+        layers.BatchNormalization(),
+        layers.Dropout(0.5),
+        layers.Dense(10, activation='softmax')
     ])
 
     model.compile(optimizer='adam',

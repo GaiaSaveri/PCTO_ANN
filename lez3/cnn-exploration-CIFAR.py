@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
 
 # Normalizzazione dei dati per migliorare l'efficienza dell'addestramento
-train_images = train_images / 255.0
-test_images = test_images / 255.0
+# train_images = train_images / 255.0
+# test_images = test_images / 255.0
 
 # Selezione di un subset di immagini per il training e il test
 num_train_subset = 10000  # Usa 10.000 immagini per l'addestramento
@@ -34,11 +34,35 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 # Addestramento del modello con il sottoinsieme di dati
-history = model.fit(train_images_subset, train_labels_subset, epochs=20, validation_data=(test_images_subset, test_labels_subset))
+history = model.fit(train_images_subset, train_labels_subset, epochs=10, validation_data=(test_images_subset, test_labels_subset))
 
 # Valutazione del modello con il sottoinsieme di dati
 test_loss, test_acc = model.evaluate(test_images_subset, test_labels_subset, verbose=2)
 print('\nTest accuracy with subset of data:', test_acc)
+
+
+# Visualizzazione delle metriche di addestramento
+plt.figure(figsize=(12, 5))
+
+plt.subplot(1, 2, 1)
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.title('Training and Validation Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+
+plt.subplot(1, 2, 2)
+plt.plot(history.history['loss'], label='Training Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+plt.title('Training and Validation Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
 
 # Predizioni sul set di test
 predicted_labels = model.predict(test_images_subset)

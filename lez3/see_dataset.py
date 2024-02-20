@@ -7,12 +7,13 @@ import matplotlib.pyplot as plt
 # Carica il dataset CIFAR-10
 (cifar_train_images, cifar_train_labels), _ = tf.keras.datasets.cifar10.load_data()
 
+
 # Funzione per visualizzare le immagini di un dataset
 def display_images(images, labels, title, cmap=None):
-    plt.figure(figsize=(10,10))
+    plt.figure(figsize=(10, 10))
     plt.suptitle(title, fontsize=16)
     for i in range(25):
-        plt.subplot(5,5,i+1)
+        plt.subplot(5, 5, i + 1)
         plt.xticks([])
         plt.yticks([])
         plt.grid(False)
@@ -23,6 +24,7 @@ def display_images(images, labels, title, cmap=None):
             plt.imshow(images[i])
         plt.xlabel(labels[i])
     plt.show()
+
 
 # Mappatura delle etichette CIFAR-10 in nomi di classe per una migliore leggibilità
 cifar_class_names = ['Airplane', 'Automobile', 'Bird', 'Cat', 'Deer',

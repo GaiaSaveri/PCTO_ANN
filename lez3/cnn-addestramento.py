@@ -32,7 +32,7 @@ train_images_subset = train_images[:num_train_images]
 train_labels_subset = train_labels[:num_train_images]
 
 # Seleziona un sottoinsieme di immagini per il test
-num_test_images = 10000
+num_test_images = 1000
 test_images_subset = test_images[:num_test_images]
 test_labels_subset = test_labels[:num_test_images]
 
