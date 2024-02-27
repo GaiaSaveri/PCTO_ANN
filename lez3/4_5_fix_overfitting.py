@@ -1,55 +1,53 @@
-# 1. Import Required Libraries
 import tensorflow as tf
 from tensorflow.keras import layers, regularizers
 import numpy as np
 import matplotlib.pyplot as plt
 
-# 2. Download and Prepare the Dataset
+# Download e preparazione del dataset
 dataset = tf.keras.datasets.imdb
 (train_data, train_labels), (test_data, test_labels) = dataset.load_data(num_words=10000)
 
 
-# Function to vectorize the sequences
 def vectorize_sequences(sequences, dimension=10000):
-    # Create an all-zero matrix of shape (len(sequences), dimension)
     results = np.zeros((len(sequences), dimension))
     for i, sequence in enumerate(sequences):
-        results[i, sequence] = 1.  # set specific indices of results[i] to 1s
+        results[i, sequence] = 1.
     return results
 
 
-# Prepare the data
 x_train = vectorize_sequences(train_data)
 x_test = vectorize_sequences(test_data)
 y_train = np.asarray(train_labels).astype('float32')
 y_test = np.asarray(test_labels).astype('float32')
 
 
-# 3. Define the Model
+# Definizione del modello con ulteriori modifiche per ridurre l'overfitting
 def create_model():
-    model = tf.keras.Sequential()
-    model.add(layers.Dense(16, activation='relu', input_shape=(10000,)))
-    model.add(layers.Dense(16, activation='relu'))
-    model.add(layers.Dense(16, activation='relu'))
-    model.add(layers.Dense(1, activation='sigmoid'))
+    model = tf.keras.Sequential([
+        layers.Dense(8, activation='relu', input_shape=(10000,)),
+        # Riduzione delle unità e aumento della regolarizzazione
+        layers.Dropout(0.6),  # Aumento del dropout
+        layers.Dense(8, activation='relu'),  # Stesse modifiche per il secondo strato
+        layers.Dropout(0.6),
+        layers.Dense(1, activation='sigmoid')
+    ])
     return model
 
 
-# 4. Compile the Model
-model = create_model()  # Change to False to see the effect of no regularization
+model = create_model()
 model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['accuracy'])
 
-# 5. Train the Model
-history = model.fit(x_train, y_train, epochs=20, batch_size=32, validation_split=0.4, verbose=2)
+# Addestramento del modello con meno epoche
+history = model.fit(x_train, y_train, epochs=15, batch_size=512, validation_split=0.4,
+                    verbose=2)  # Riduzione delle epoche
 
-# 6. Evaluate the Model
+# Valutazione del modello
 results = model.evaluate(x_test, y_test)
 print(f"Test Loss: {results[0]}, Test Accuracy: {results[1]}")
 
 
-# 7. Plotting Utility
 def plot_history(history):
     hist = history.history
     epochs = range(1, len(hist['accuracy']) + 1)
