@@ -1,102 +1,40 @@
-import numpy as np
 import tensorflow as tf
-from tensorflow.keras.datasets import fashion_mnist
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization, Reshape
+from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 import matplotlib.pyplot as plt
+import numpy as np
 
-# Caricamento e riduzione del dataset Fashion MNIST a un subset
-(x_train_full, y_train_full), (x_test_full, y_test_full) = fashion_mnist.load_data()
-x_train, y_train = x_train_full[:1000], y_train_full[:1000]  # Selezione di un subset per il training
-x_test, y_test = x_test_full[:400], y_test_full[:400]  # Selezione di un subset per il test
+# Carica un'immagine ad alta risoluzione (sostituire con il percorso della tua immagine)
+image_path = 'image.png'
+image = load_img(image_path)  # Carica l'immagine come PIL Image
+image = img_to_array(image)  # Converte l'immagine in un array NumPy
+image = np.expand_dims(image, axis=0)  # Aggiunge una dimensione per adattarsi all'API del generatore
 
-# Preprocessing dei dati
-x_train, x_test = x_train / 255.0, x_test / 255.0  # Normalizzazione
-x_train = x_train.reshape((-1, 28, 28, 1))  # Reshape per la CNN
-x_test = x_test.reshape((-1, 28, 28, 1))
-
-# Definizione della pipeline di data augmentation
-data_augmentation = ImageDataGenerator(
-    rotation_range=10,  # Reduced from 15 to 10
-    zoom_range=0.05,  # Reduced from 0.1 to 0.05
-    width_shift_range=0.05,  # Reduced from 0.1 to 0.05
-    height_shift_range=0.05  # Reduced from 0.1 to 0.05
+# Definisce le trasformazioni per la data augmentation
+datagen = ImageDataGenerator(
+    rotation_range=40,  # Gradi massimi di rotazione casuale dell'immagine
+    width_shift_range=0.2,  # Frazione della larghezza totale per la traslazione orizzontale
+    height_shift_range=0.2,  # Frazione dell'altezza totale per la traslazione verticale
+    shear_range=0.2,  # Intensità di taglio (shear) per la trasformazione di taglio
+    zoom_range=0.2,  # Range per il zoom casuale all'interno dell'immagine
+    horizontal_flip=True,  # Capovolge casualmente le immagini orizzontalmente
+    fill_mode='nearest'  # La strategia per riempire i nuovi pixel che possono apparire dopo una rotazione o un cambio di larghezza/altezza
 )
 
-
-# Function to create a new model (to avoid code duplication)
-def create_model():
-    model = Sequential([
-        Reshape((28, 28, 1), input_shape=(28, 28, 1)),
-        Conv2D(32, kernel_size=3, activation='relu', padding='same'),
-        BatchNormalization(),
-        Conv2D(32, kernel_size=3, activation='relu', padding='same'),
-        BatchNormalization(),
-        MaxPooling2D(pool_size=2),
-        Dropout(0.25),
-        Conv2D(64, kernel_size=3, activation='relu', padding='same'),
-        BatchNormalization(),
-        Conv2D(64, kernel_size=3, activation='relu', padding='same'),
-        BatchNormalization(),
-        MaxPooling2D(pool_size=2),
-        Dropout(0.25),
-        Flatten(),
-        Dense(128, activation='relu'),
-        BatchNormalization(),
-        Dropout(0.5),
-        Dense(10, activation='softmax')
-    ])
-    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-    return model
-
-
-epochs = 30
-
-# Train the first model with data augmentation
-model_with_aug = create_model()
-history_with_aug = model_with_aug.fit(
-    data_augmentation.flow(x_train, y_train, batch_size=64),
-    epochs=epochs,
-    validation_data=(x_test, y_test),
-    steps_per_epoch=x_train.shape[0] // 64
-)
-
-# Train the second model without data augmentation
-model_without_aug = create_model()
-history_without_aug = model_without_aug.fit(
-    x_train, y_train,
-    batch_size=64,
-    epochs=epochs,
-    validation_data=(x_test, y_test)
-)
-
-
-# Plotting the results
-def plot_results(history_with_aug, history_without_aug):
-    fig, axs = plt.subplots(2, 2, figsize=(15, 10))
-    axs[0, 0].plot(history_with_aug.history['accuracy'], label='Train with Augmentation')
-    axs[0, 0].plot(history_without_aug.history['accuracy'], label='Train without Augmentation')
-    axs[0, 0].set_title('Training Accuracy')
-    axs[0, 0].legend()
-
-    axs[0, 1].plot(history_with_aug.history['val_accuracy'], label='Val with Augmentation')
-    axs[0, 1].plot(history_without_aug.history['val_accuracy'], label='Val without Augmentation')
-    axs[0, 1].set_title('Validation Accuracy')
-    axs[0, 1].legend()
-
-    axs[1, 0].plot(history_with_aug.history['loss'], label='Train with Augmentation')
-    axs[1, 0].plot(history_without_aug.history['loss'], label='Train without Augmentation')
-    axs[1, 0].set_title('Training Loss')
-    axs[1, 0].legend()
-
-    axs[1, 1].plot(history_with_aug.history['val_loss'], label='Val with Augmentation')
-    axs[1, 1].plot(history_without_aug.history['val_loss'], label='Val without Augmentation')
-    axs[1, 1].set_title('Validation Loss')
-    axs[1, 1].legend()
-
+# Funzione per visualizzare le immagini
+def plot_images(images_arr, n_cols=4):
+    n_rows = len(images_arr) // n_cols + (len(images_arr) % n_cols > 0)
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(n_cols*4, n_rows*4))
+    for i, ax in enumerate(axes.flat):
+        if i < len(images_arr):
+            ax.imshow(images_arr[i].astype('uint8'))
+            ax.axis('off')
+    plt.tight_layout()
     plt.show()
 
+# Genera immagini trasformate e le visualizza
+augmented_images = []
+for _ in range(8):
+    augmented_img = datagen.random_transform(image[0])  # Applica una trasformazione casuale
+    augmented_images.append(augmented_img)
 
-# Call the plotting function
-plot_results(history_with_aug, history_without_aug)
+plot_images(augmented_images)
