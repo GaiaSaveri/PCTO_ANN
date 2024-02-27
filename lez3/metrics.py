@@ -52,7 +52,7 @@ def print_class_accuracy(true_labels, predicted_labels, classes):
 
 
 # Caricare i dati
-data = load_data('cifar_optimized_results.pkl')
+data = load_data('cifar_normal_results.pkl')
 
 # Plot dei boxplot per loss e accuracy
 plot_boxplots(pd.DataFrame(data['history']))

@@ -10,8 +10,8 @@ import pickle
 (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
 
 # Normalizzazione dei dati per migliorare l'efficienza dell'addestramento
-# train_images = train_images / 255.0
-# test_images = test_images / 255.0
+train_images = train_images / 255.0
+test_images = test_images / 255.0
 
 # Selezione di un subset di immagini per il training e il test
 num_train_subset = 10000  # Usa 10.000 immagini per l'addestramento
@@ -22,7 +22,7 @@ test_images_subset = test_images[:num_test_subset]
 test_labels_subset = test_labels[:num_test_subset]
 
 model = models.Sequential([
-    layers.Conv2D(16, (3, 3), activation='relu', input_shape=(32, 32, 3)),  # Riduzione del numero di filtri
+    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)),  # Riduzione del numero di filtri
     layers.MaxPooling2D((2, 2)),  # Pooling per ridurre la dimensione dell'output
     layers.Flatten(),
     layers.Dense(32, activation='relu'),  # Riduzione del numero di neuroni
