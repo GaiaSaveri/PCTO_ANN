@@ -21,14 +21,3 @@ def visualizza_immagini(dataset, y=None, n=10, nome_classi=None, colors='viridis
             axs[i].set_title(nome_classi[y[viz_idx[i]]])
     plt.tight_layout()
     plt.show()
-
-
-def plot_train_val_loss(model_history):
-    plt.plot(model_history.history['loss'], label='train')
-    plt.plot(model_history.history['val_loss'], label='validation')
-    plt.xlabel('epoch')
-    plt.ylabel('loss')
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-
